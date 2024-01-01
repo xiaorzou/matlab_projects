@@ -1,0 +1,73 @@
+function val=Continuation()
+global Oalpha Obeta Strike Discount NumA NumB Coef 
+global NumPeriods EpsilonSearching Lambda B N 
+global CP D Deg FFTAD SA Euro FFTExp D3
+global Index GP Left Right %donot need this one late.
+
+if Index==NumPeriods-1
+    val=max(Euro(GP),0);
+    %val'
+    %exit('euro');
+    return;
+end
+
+
+x=D(GP); %to be global in the future
+
+low=min(max(D(B(1))-x, D(1)), D(N/2));
+lowpos=min(max(B(1)-GP+CP,1),N/2); %new
+%val=GetCDF(low, -1,-1)*Strike*Oalpha-Obeta*exp(x).*GetExpF(low, 1); %old
+val=FFTAD(1,lowpos)*Strike*Oalpha-Obeta*exp(x).*FFTExp(lowpos); %new
+
+if Index==8
+    disp('in conti')
+val(1)
+end
+
+%if Index==8
+%    disp('111111111111111')
+%    val'
+%    exit('in con 1')
+%end
+
+%for i=1:NumA
+%    for h=1:Deg
+%        val=val+CoefA(i,h)*GetPIntNew(BA(i), pos, Deg-h+1,1); %(base, pos, deg, option)
+%    end
+%    low=min(max(BA(i)-pos+CP,1), N/2);
+%    up= min(max(BA(i+1)-pos+CP,1),N/2);
+%    val=val+CoefA(i,Deg+1)*(FFTAD(1,up)-FFTAD(1,low));
+%end
+
+%for i=1:NumB
+%    for h=1:Deg
+%        val=val+CoefB(i,h)*GetPIntNew(BB(i),pos,Deg-h+1,2);
+%    end
+%    low=min(max(BB(i)-pos+CP,1), N/2);
+%    up= min(max(BB(i+1)-pos+CP,1),N/2);
+%    val=val+CoefB(i,Deg+1)*(FFTAD(1, up)-FFTAD(1,low));
+%end
+[row,cols]=size(GP);
+val1=0;
+for pos=1:cols
+    %size(Coef(:,1:Deg))
+    %size(D3(:,:,pos))
+    val1(pos)=sum(sum(Coef(:,1:Deg).*D3(:,:,pos)));
+    if Index==8 & pos==1
+        val1(1)
+    end
+    lowpos=min(max(B(1:NumA+NumB)-G(pos)+CP,1), N/2);
+    uppos=min(max(B(2:NumA+NumB+1)-G(pos)+CP,1),N/2);
+    val1(pos)=val1(pos)+sum(Coef(:,Deg+1)'.*(FFTAD(1,uppos)-FFTAD(1,lowpos)));
+    if Index==8 & pos==1
+        val1(1)
+        Coef(1,:)
+        Coef(1,Deg+1)
+        [B(2),pos,B(1)]
+        [uppos(1),lowpos(1),CP]
+        [FFTAD(1,uppos(1)),FFTAD(1,lowpos(1))]
+        exit('in conti 10')
+    end
+end
+val1=max(val1,0);
+val=(val+val1)*Discount;

@@ -1,0 +1,311 @@
+\documentclass[numreferences]{kluwer}    % Specifies the document style.
+\usepackage{graphicx}
+\usepackage{setspace}
+\newdisplay{guess}{Conjecture}
+\newtheorem{Thm}{Theorem}[section]
+\newtheorem{Prop}[Thm]{Proposition}
+\newtheorem{Lem}[Thm]{Lemma}
+\newtheorem{Cor}[Thm]{Corollary}
+\newtheorem{Alg}[Thm]{Algorithm}
+\newtheorem{Ass}[Thm]{Assumption}
+\newtheorem{Que}[Thm]{Question}
+\newtheorem{Conj}[Thm]{Conjecture}
+\newtheorem{Rem}{Remark}
+\newtheorem{Exa}{Example}
+\newtheorem{Con}{Condition}
+\newtheorem{Def}[Thm]{Definition}
+
+
+\begin{document}
+\begin{article}
+\begin{opening}
+\date{April 15,2009}
+\title{Working Paper: Estimate density function through Fast Fourier Transformation}
+\author{Xiaorong \surname{Zou}\email{xiaorzou@gmail.com}}
+%\institute{Department of Statistics and Actuarial Science,
+%University of Waterloo\\
+%Waterloo, Ontario, N2L 3G1, Canada}
+
+\date{Oct,31, 2018}
+\runningauthor{X. Zou} \runningtitle{Estimate function through FFT}
+\begin{abstract}
+This is the specification for estimating a function and its derivatives/antiderivatives of any order through fast Fourier transformation(FFT).
+\end{abstract}
+\end{opening}
+\section{$\cos$ expansion of even functions}
+For an even continuous periodic function $h$ on $[-\pi,\pi]$, we
+have by the standard Fourier analysis
+\[
+h(x)={\sum_{j \ge 0}}A_j' \cos(jx)
+\]
+where
+\begin{equation}\label{Aj1}
+A_j=\frac{2}{\pi}\int^{\pi}_0 h(x)\cos(jx)dx.
+\end{equation}
+and
+\begin{equation}\label{Ajp}
+A'_0=A_0/2,\quad  \quad A'_j=A_j,\quad j\ge 1.
+\end{equation}
+\begin{Rem}
+We shall use similar notation $\{c_j\}_{j\ge 0}'$ for any
+sequence $\{c_j\}_{j\ge 0}$, i.e.
+\begin{equation}\label{cjp}
+c'_0=c_0/2,\quad  \quad c'_j=c_j,\quad j\ge 1.
+\end{equation}
+\end{Rem}
+Assume a function $f(x)$ is defined over the interval $[L, R]$. 
+Extend it to an even periodic function over the real number space
+$\mathbb{R}$, and denote the extended function also by $f$.   Transform the interval $[L, R]$ to $[0, \pi]$ by
+\begin{equation}\label{y}
+y=\frac{\pi(x-L)}l,\quad x\in [L,R]
+\end{equation}
+where $l=R-L$. We have
+\begin{equation}\label{fx}
+f(x)=\frac{A_0}2+\sum_{j=1}^{\infty}A_j \cos\frac{j\pi(x-L)}l=\sum_{j=0}^{\infty}A'_j \cos\frac{j\pi(x-L)}l,
+\quad x\in [L,R]
+\end{equation}
+where
+\begin{equation}\label{Aj2}
+A_j=\frac{2}l\int^{R}_L f(x)\cos\frac{j\pi(x-L)}l dx.
+\end{equation}
+Using first $N$ terms in above series to Approximate $f$, 
+\begin{equation}\label{pdfa2}
+\tilde{f}_N(x)=\sum_{j=0}^{N-1}(-1)^{j}A'_j \cos(\pi
+j\frac{x-(2L-R)}l).
+\end{equation}
+Let $F(x,0)=\tilde{f}_N(x)$ and
+\begin{eqnarray*}
+F(x,k):=F(x,k+1)',\quad k=-1,-2,-3,\dots\\
+F(x,k):=\int^{x}_{L} F(u,k-1)du, \quad k=1, 2, 3\dots,
+\end{eqnarray*}
+denote the derivatives and anti derivatives of order $k$ of
+$\tilde{f}_N$ respectively. The explicit expression (\ref{pdfa2}) of
+$\tilde{f}_N$ make it possible for us to compute effectively
+$F(x,k)$ at the points $\{x_k\}_{k=0}^N$:
+\begin{equation}\label{xk}
+x_k=(2L-R)+k\times \lambda, \quad \lambda=\frac{2(R-L)}N, 0\le k \le N
+\end{equation}
+Note that
+\[
+x_0 = 2L-R, \quad x_{N/2}=L, \quad x_{N}=R.
+\]
+By (\ref{pdfa2}),
+\begin{equation}\label{fxk}
+F(x_k,0)={\sum_{j=0}^{N-1}} A_j' (-1)^{j}\cos(2kj\pi/N)\\
+=\Re {\sum_{j=0}^{N-1}} A_j' (-1)^{j}\omega_N^{kj}
+\end{equation}
+where $\omega_N=e^{2\pi i/N}$. For any complex number $z$,  $\Re(z)$
+and $\Im(z)$ denote the real part and imaginary part of $z$
+respectively. of the complex number $z$. The equation (\ref{fxk}) can be obtained by inverse FFT
+($ifft$):
+\begin{equation}\label{FFT}
+\{F(x_k,0)\}_{0\le k\le N-1}=N \times \Re
+\left\{ifft(\{(-1)^jA'_j\}_{0\le j\le N-1})\right\}.
+\end{equation}
+One can apply (\ref{pdfa2}) to derive $s$-th order derivatives ($s= -1,-2,\cdots$)
+\begin{eqnarray*}
+F(x,-(2h-1))&=&(-1)^h \sum_{j=0}^{N-1}(-1)^{j}(j\pi/l)^{2h-1}A'_j \sin(\pi j\frac{x-(2L-R)}l) \nonumber\\
+F(x,-2h)&=&(-1)^h \sum_{j=0}^{N-1}(-1)^{j}(j\pi/l)^{2h}A'_j \cos(\pi j\frac{x-(2L-R)}l). \label{Fxa}
+\end{eqnarray*}
+and apply inverse FFT to estimate the values at $\{x_k\}_{0\le k\le N-1}$
+\begin{eqnarray}
+\{F(x_k,-(2h-1))\}&=&(-1)^h   N \times \Im (ifft\{(-1)^j (j\pi/l)^{2h-1} A'_j\})  \label{FFTD1}\\
+\{F(x_k,-(2h))\}&=&(-1)^h  N \times \Re (ifft\{(-1)^j (j\pi/l)^{2h} A'_j\})   \label{FFTD2}
+\end{eqnarray}
+For anti derivatives $F(x,s)$ ($s=1,2,\dots$), one can use
+induction to show for $h\ge 1$
+\begin{eqnarray}
+F(x,2h-1)&=&(-1)^{h-1} \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h-1}}{(j\pi)^{2h-1}}\sin(j\pi\frac{x-(2L-R)}{l})\nonumber\\
+&+&\sum_{m=1}^{h-1}\frac{(-1)^{h-m-1}}{(2m-1)!}(x-L)^{2m-1}\sum_{j=0}^{N-1}\frac{\hat{A}_jl^{2(h-m+1)}}{(\pi
+j)^{2(h-m+1)}}\nonumber\\
+&+&\frac{A'_0(x-L)^{2h-1}}{(2h-1)!} \label{FFTDA1}
+\end{eqnarray}
+and
+\begin{eqnarray}
+F(x,2h)&=&(-1)^h \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}}\cos(j\pi\frac{x-(2L-R)}{l}) \nonumber\\
+&+&\sum_{m=1}^{h}\frac{(-1)^{h-m}}{(2m-2)!}(x-L)^{2m-2}\sum_{j=0}^{N-1}\frac{\hat{A}_jl^{2(h-m+1)}}{(\pi
+j)^{2(h-m+1)}}\nonumber\\
+&+&\frac{A'_0(x-L)^{2h}}{(2h)!} \label{FFTDA2} 
+\end{eqnarray}
+where
+\[
+\hat{A}_0 = 0,\quad \hat{A}_j = A'_j=A_j, \quad j\ge 1
+\]
+For $h \ge 1$, 
+\begin{eqnarray*}
+\{Z(h,k)\}_{0\le k \le N-1} &=& \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h-1}}{(j\pi)^{2h-1}}   \sin(j\pi\frac{x_k-(2L-R)}{l})\\
+&=&N\times \Im (ifft\{ (-1)^j \frac{\hat{A}_j
+l^{2h-1}}{(j\pi)^{2h-1}} \})
+\end{eqnarray*}
+and
+\begin{eqnarray*}
+\{Y(h,k)\}_{0\le k \le N-1} &=& \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}}   \cos(j\pi\frac{x_k-(2L-R)}{l})\\
+&=&N\times \Re (ifft\{ (-1)^j \frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}} \})
+\end{eqnarray*}
+Notice that
+\[
+Y(h,\frac{N}2)=\sum_{j=0}^{N-1}\frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}} 
+\]
+One can rewrite (\ref{FFTDA1}) as
+\begin{eqnarray}
+% \nonumber % Remove numbering (before each equation)
+  \{F(x_k,2h-1)\}_k &=& (-1)^{h-1} \{Z(j,k)\}_k + \{\frac{A'_0(x_k-L)^{2h-1}}{(2h-1)!}\}_k \label{FFTDA11} \\
+&+& \{\sum_{m=1}^{h-1}\frac{(-1)^{h-m-1}Y(\frac{N}2,h-m+1)}{(2m-1)!} (x_k-L)^{2m-1}\}_k\nonumber
+\end{eqnarray}
+and rewrite (\ref{FFTDA2}) as
+\begin{eqnarray}
+% \nonumber % Remove numbering (before each equation)
+  \{F(x_k,2h)\}_k &=& (-1)^{h} \{Y(j,k)\}_k + \{\frac{A'_0(x_k-L)^{2h}}{(2h)!}\}_k \label{FFTDA22} \\
+&+& \{\sum_{m=1}^{h}\frac{(-1)^{h-m}Y(\frac{N}2,h-m+1)}{(2m-2)!} (x_k-L)^{2m-2}\}_k\nonumber
+\end{eqnarray}
+Since we assume that $f_X=0$ outside $[L,R]$, one should only take the second parts of $F$:
+\[
+F(i,h)=F(N/2:(N-1),h), \quad h=0,1,\dots \frac{N}2-1
+\]
+\section{Estimate certain relevant integrations}
+\subsection{Exp}
+FFT method can also be used to compute the following integration,
+which is required for our purpose.
+\begin{equation}
+E(x,t)=\int^x_L e^{tu}\tilde{f}_N(u)du,\quad t\ge 0,\quad x<R
+\end{equation}
+In fact,
+\begin{eqnarray}
+E(x,t)&=&e^{tx}\sum_{j=0}^{N-1}\frac{\frac{1}{t}\cos(j\pi(x-L)/l) +
+\frac{j\pi}{lt^2}\sin(j\pi(x-L)/l)
+}{1+(\frac{j\pi}{tl})^2}A_j'\nonumber\\
+&-&\sum_{j=0}^{N-1}\frac{e^{tL}/t}{1+(\frac{j\pi}{tl})^2}A_j'\nonumber\\
+&=&e^{tx}\sum_{j=0}^{N-1}\frac{\frac{1}{t}(-1)^j\cos(j\pi(x-(2L-R))/l)}{1+(\frac{j\pi}{tl})^2}A_j'\nonumber\\
+& +&e^{tx}\sum_{j=0}^{N-1}
+\frac{\frac{j\pi}{lt^2}(-1)^j\sin(j\pi(x-(2L-R))/l)
+}{1+(\frac{j\pi}{tl})^2}A_j'\\
+&-&\sum_{j=0}^{N-1}\frac{e^{tL}/t}{1+(\frac{j\pi}{tl})^2}A_j' \label{Ext}
+\end{eqnarray}
+We can use FFT inverse transformation to obtain
+$\{E(x_k,t)\}_{k=0}^{N-1}$.
+
+\subsection{power function}
+using integration by parts, we can calculate the following integration for any nonnegative integer $j$
+\[
+P(a,b,c,j)=\int^{b}_a(x-c)^j \tilde{f}_X(x)dx, \quad
+[a,b]\subseteq [L,R]
+\]
+In fact,
+\begin{equation}\label{pyd}
+P(a,b,c,j)=\sum_{k=0}^{j}\frac{(-1)^{k} j! }{(j-k)!}
+\{F(b,k)(b-y)^{j-k}-F(a,k)(a-y)^{j-k}\}
+\end{equation}
+%\section{}
+
+\section{normalized density}
+We assume that density function $f(x)$ is effectively defined on the symmetric range $[L,R]$ with $L=-R$.  Using the Fourier expansion (\ref{fx}),  %approximate  $f$ by the first $N$ terms,
+
+\begin{equation}\label{f2_v2}
+f(x)\approx  \frac{A_0}2 + \sum_{j=1}^{\infty}A_j \cos\frac{j\pi(x+R)}l ,
+\quad x\in [L,R]
+\end{equation}
+where $A_j$ is defined by \ref{Aj2}.
+
+Let $h(x)$ is the normralized function over the range $[-R,R]$ and is approximated by the Fourier expansion
+\begin{equation}\label{h}
+	h(x) =\sum_{0\le j < M}c_j cos\frac{j\pi x}{R}.
+\end{equation}
+
+Rewrite $h(x)$ to align with the Fourier expansion (\ref{f2_v2}) of $f(x)$,
+\begin{eqnarray}
+	h(x)&=& \sum_{0\le j<M}c_{j} (-1)^j\cos \frac{j\pi}{R}(x+R)\nonumber\\
+	&=&  \sum_{0\le k<2M}h_k \cos \frac{k\pi}{2R}(x+R)\label{h2}
+\end{eqnarray}
+where
+\begin{eqnarray}\label{v}
+	h_k = \left\{\begin{array}{cc}
+		(-1)^j c_j &  k=2j\\
+		0 & otherwise 
+	\end{array}
+\end{eqnarray}
+
+Let $g(x)=f(x)h(x)$,  we need to find the cos expansion of $g(x)$ over the range $[-R,R]$.  
+
+\begin{equation}\label{g}
+	g(x)=  \sum_{j=0}^{\infty}B_j \cos\frac{j\pi(x+R)}{2R},
+	\quad x\in [L,R]
+\end{equation}
+where
+\begin{equation}\label{Bj2_0}
+	B_0=\frac{1}l\int^{R}_L f(x)h(x) dx
+\end{equation}
+and 
+\begin{equation}\label{Bj2_j}
+	B_j=\frac{2}l\int^{R}_L f(x)h(x)\cos\frac{j\pi(x+R)}{2R} dx, \qquad j\ge 1
+\end{equation}
+
+By (\ref{h2}) and (\ref{Bj2_0})
+\begin{equation}
+	B_0 = h_0A_0 + \frac12\sum_{1\le k <2M}A_kh_k 
+\end{equation}
+
+and by (\ref{h2}) and (\ref{Bj2_j}), for $j>0$,
+\begin{eqnarray}
+B_j&=& \frac{2}l\int^{R}_L f(x)\cos\frac{j\pi}{2R}(x+R)  \sum_{0\le k<2M} h_k\cos \frac{k\pi}{2R}(x+R)   dx, \nonumber\\
+&=& \sum_{0\le k<2M}  \frac{h_k}l\int^{R}_L f(x)\cos\frac{(j+k)\pi}{2R} (x+R)  dx, \nonumber\\
+&+& \sum_{0\le k<2M}  \frac{h_k}l\int^{R}_L f(x)\cos\frac{(j-k)\pi}{2R} (x+R)  dx, \nonumber\\
+&=& I_j + II_j
+\end{eqnarray}
+where
+\begin{equation}
+	I_j =\sum_{0\le k<2M}  \frac{h_k}l\int^{R}_L f(x)\cos\frac{(j+k)\pi}{2R} (x+R)  dx = \frac12\sum_{0\le k<2M} h_jA_{j+k}.
+\end{equation}
+For $0\le j<2M$, 
+\begin{eqnarray}
+	II_j &=& \sum_{0\le k<2M}  \frac{h_k}l\int^{R}_L f(x)\cos\frac{(j-k)\pi}{2R} (x+R)  dx, \nonumber\\
+	&=& \sum_{0\le k<2M, k\neq j}  \frac{h_k}l\int^{R}_L f(x)\cos\frac{(j-k)\pi}{2R} (x+R)  dx + 
+	\frac{h_j}l\int^{R}_L f(x) dx  \nonumber\\
+	&=& \frac12 \sum_{0\le k<2M} h_kA_{j-k} + \frac12 h_jA_0 
+\end{eqnarray}
+ where $A_{-k}=A_k$ for any positive integer $k$. For $j\ge 2M$,
+ \begin{equation}
+ 	II_j = \frac12 \sum_{0\le k<2M} h_kA_{j-k} 
+ \end{equation}
+ 
+If we like to approximate $g(x)$ using $N$ terms,  then we need $\{A_j\}_{0\le j <2M+N}$, and we have
+\begin{equation}\label{g2}
+	g(x)\approx  \sum_{j=0}^{N-1}B_j \cos\frac{j\pi(x+R)}{2R},
+	\quad x\in [L,R]
+\end{equation}
+where
+\begin{eqnarray}
+	B_0 &=& h_0A_0 + \frac12\sum_{1\le k <2M}A_kh_k \nonumber\\
+	B_j &=& \frac12 h_jA_0 + \frac12\sum_{0\le k<2M} h_jA_{j+k} + \frac12 \sum_{0\le k<2M} h_kA_{j-k}, \quad 0<j< 2M\nonumber\\
+	B_j &=&  \frac12\sum_{0\le k<2M} h_jA_{j+k} + \frac12 \sum_{0\le k<2M} h_kA_{j-k} \quad j\ge 2M \label{g_coef}
+\end{eqnarray}
+ 
+%\bibliographystyle{amsplain}
+%\begin{thebibliography}{10}
+%\bibitem{cama}
+%P. Carr  and D. Madan,  \textit{Option valuation using the fast
+%Fourier transform} J. Comput. Finance (2), pp61--73, 1998
+
+%\bibitem{como}
+%P. Costantini and R. Morandi, \textit{Monotone and convex cubic
+%spline interpolation}, Calcolo, Vol 21, pp 281--294, 1984
+
+%\bibitem{losc}
+%F.A. Longstaff and E.S. Schwartz, \textit{Valuing American options
+%by simulation: a simple least-squares approach,} Review of Financial
+%Studies (14), pp 113--147. 2001.
+
+%\bibitem{adam}
+%A. Kolkiewicz, \textit{Pricing American options on exponential Levy
+%processes,} Dec, 2007.
+%\end{thebibliography}
+
+
+\end{article}
+
+\end{document}

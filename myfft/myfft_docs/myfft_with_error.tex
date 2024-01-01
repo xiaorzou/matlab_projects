@@ -1,0 +1,353 @@
+\documentclass[numreferences]{kluwer}    % Specifies the document style.
+\usepackage{graphicx}
+\usepackage{setspace}
+\newdisplay{guess}{Conjecture}
+\newtheorem{Thm}{Theorem}[section]
+\newtheorem{Prop}[Thm]{Proposition}
+\newtheorem{Lem}[Thm]{Lemma}
+\newtheorem{Cor}[Thm]{Corollary}
+\newtheorem{Alg}[Thm]{Algorithm}
+\newtheorem{Ass}[Thm]{Assumption}
+\newtheorem{Que}[Thm]{Question}
+\newtheorem{Conj}[Thm]{Conjecture}
+\newtheorem{Rem}{Remark}
+\newtheorem{Exa}{Example}
+\newtheorem{Con}{Condition}
+\newtheorem{Def}[Thm]{Definition}
+
+
+\begin{document}
+\begin{article}
+\begin{opening}
+\date{April 15,2009}
+\title{working paper: Fast Fourier Transformation and its Applications}
+\author{Xiaorong \surname{Zou}\email{xiaorzou@gmail.com}}
+%\institute{Department of Statistics and Actuarial Science,
+%University of Waterloo\\
+%Waterloo, Ontario, N2L 3G1, Canada}
+
+\date{Oct,31, 2018}
+\runningauthor{X. Zou} \runningtitle{Estimate density function through FFT}
+\begin{abstract}
+This is the specification for estimating the density function and derivatives and antiderivatives  of a random variable through fast Fourier transformation(FFT) where the characteristic function of the random variable can be calculated effectively.
+\end{abstract}
+\end{opening}
+\section{$\cos$ expansion of density functions}
+Let $X$ be an random variable with continuous pdf $f_X(x)$. Assume
+that its characteristic function $\phi(t)$ can be computed
+effectively.
+\begin{equation}\label{phi}
+\phi_X(t)=E[e^{itX}]=\int^{\infty}_{-\infty}e^{itx}f_X(x)dx
+\end{equation}
+We shall assume that there exists an bounded interval such that
+$f_X(x)$ are monotonic and bounded by an prescribed small number
+$\epsilon$,
+\begin{Ass}
+\begin{enumerate}
+\item $f_X(x)$ is deceasing over $[R,\infty)$ and increasing over
+$(-\infty,L]$.
+\item
+\[
+0\le f_X(x)\le \epsilon, \quad x\in [L,R]^c
+\]
+\end{enumerate}
+\end{Ass}
+\begin{Rem} Intuitively, the first assumption should be satisfied for most
+continuous density function since $f_X(x)\ge 0$ and $\lim_{x\to
+\infty}f_X(x)=0$. With the monotonic assumption, we propose the
+following way for the range $[L,R]$, which can be carried out using
+characteristic function.
+
+Assume $f_X(x)$ is monotonic outside an range $[a,b]^c$, we can find
+$[L,R]$ with prescribed $\epsilon$ as follows. Choose $C$ such that
+$\frac{Var(X)}{C^2}\le \epsilon$ and $[\mu_X-C-1, \mu_X+C+1]$
+contains $[a,b]$. For $\forall x<L:=\mu_X-C-1$, using the monotonic assumption
+and the Chebyshev's inequality, we have
+\begin{eqnarray*}
+0&\le& f_X(x)\le f_X(L)\le \int^{\mu_X-C}_{L}f_X(x)dx\\
+&\le& \int^{\mu_X-C}_{-\infty}f_X(x)dx <P((X-\mu_X)^2>C^2)\le
+\frac{Var(X)}{C^2}=\epsilon.
+\end{eqnarray*}
+Similar arguments can be used to show
+\[
+0\le f_X(x)\le \epsilon, \quad \forall x>R:=\mu_X+C+1.
+\]
+Note that
+$Var(X)=E[X^2]-E[X]^2$ can be computed using characteristic
+function.
+\end{Rem}
+For an even continuous periodic function $h$ on $[-\pi,\pi]$, we
+have by the standard fourier analysis
+\[
+h(x)={\sum_{j \ge 0}}A_j' \cos(jx)
+\]
+where
+\begin{equation}\label{Aj1}
+A_j=\frac{2}{\pi}\int^{\pi}_0 h(x)\cos(jx)dx.
+\end{equation}
+and
+\begin{equation}\label{Ajp}
+A'_0=A_0/2,\quad  \quad A'_j=A_j,\quad j\ge 1.
+\end{equation}
+\begin{Rem}
+We shall use similar notation $\{c_j\}_{j\ge 0}'$ for any
+sequence $\{c_j\}_{j\ge 0}$, i.e.
+\begin{equation}\label{cjp}
+c'_0=c_0/2,\quad  \quad c'_j=c_j,\quad j\ge 1.
+\end{equation}
+\end{Rem}
+Restrict $f_X$ over $[L,R]$ and
+extend it to an even periodic function over the real number space
+$\mathbb{R}$, using the transformation, we have
+\begin{equation}\label{y}
+y=\frac{\pi(x-L)}l,\quad x\in [L,R]
+\end{equation}
+where $l=R-L$. We have
+\[
+f_X(x)=\frac{A_0}2+\sum_{j=1}^{\infty}A_j \cos\frac{j\pi(x-L)}l,
+\quad x\in [L,R]
+\]
+where
+\begin{equation}\label{Aj2}
+A_j=\frac{2}l\int^{R}_L f_X(x)\cos\frac{j\pi(x-L)}l dx.
+\end{equation}
+If we define
+\[
+\tilde A_j=\frac{2}l\int^{\infty}_{-\infty}
+f_X(x)\cos\frac{j\pi(x-L)}ldx,
+\]
+then
+\begin{equation}\label{Ajt}
+\tilde A_j=\frac{2}l \Re\{\phi_X(\frac{j\pi}l) e^{-j\pi i L/l}\},
+\end{equation}
+Define
+\begin{equation}\label{pdfa}
+\tilde f_{N}(x)={\sum_{0\le j\le N-1}}\tilde{A}_j'
+\cos\frac{j\pi(x-L)}l, \quad x\in [L,R]
+\end{equation}
+One can use $\tilde f_N$ to estimate $f_X$ over $[L,R]$.
+\section{Error estimations}
+In this section, we show that the estimation error $\tilde f_{N}(x) - f_X(x)$ can be arbitrarily small.
+To that aim, first
+note that
+\[
+|A_0-\tilde A_0|\le \frac{2}l (P(X\ge R)+P(X\le L))
+\]
+We assume that $|f'_X|$, $|f''_X|$ and $|f'''_X|$ are continuous.
+Integration by part, we have
+\begin{equation}
+|\frac2l\int^R_{L}f_X(x)\cos\frac{n\pi(x-L)}ldx|<\frac{2l}{n^2\pi^2}(|f_X'(R)|+|f_X'(L)|)
++O(\frac1{n^3})
+%|\frac2l\int_{[L,R]^c}f_X(x)\cos\frac{n\pi(x-L)}ldx|&<&\frac{2l}{n^2\pi^2}(|f_X'(R)|+|f_X'(L)|)
+%+O(\frac1{n^3})
+\end{equation}
+where
+\[
+O(\frac1{n^3})=\frac{2l^2}{n^3\pi^3}\int^R_L|f'''_X(x)|dx
+\]
+For $n\ge 1$,
+\begin{eqnarray*}
+|A_n-\tilde A_n|&=&\frac2{\pi}|\int_{[0,\pi]^c}
+f_X(\frac{l}{\pi}x+L)\cos(nx)dx|\\
+&\le&\frac2{\pi} \{|\int^0_{-\pi/(2n)}f_X(\frac{l}{\pi}x+L)\cos(nx)dx| \\
+&+&|\int^{\pi+\pi/(2n)}_{\pi}|f_X(\frac{l}{\pi}x+L)\cos(nx)dx\}\\
+&\le & \frac{2}{n\pi}(f_X(L)+f_X(R))
+\end{eqnarray*}
+We have
+\begin{Prop} If $|f_X'|$, $|f_X''|$ and $|f_X'''|$ are continuous and in
+$L^1(\mathbb{R})$ and $f_X$ is monotonic over $[L,R]^c$, then
+\begin{eqnarray}
+|f_X(x)-\tilde f_N(x)|&\le& \frac{2}{\pi}(f_X(L)+f_X(R))(\ln N+\gamma)\nonumber\\
+&+&\frac{2l}{(N-2)\pi^2}(|f_X'(R)|+|f_X'(L)|)\nonumber\\
+&+&\frac{2l^2}{(N-2)(N-3)\pi^3}\int^{\infty}_{-\infty}|f'''_X(x)|dx\nonumber\\
+&+&\frac{2}l (P(X\ge R)+P(X\le L)):=\epsilon(N,L,R)\label{errorE}
+\end{eqnarray}
+where $\gamma$ is the Euler constant such that
+\[
+\sum_{k=1}^N\frac1k\approx \ln N +\gamma
+\]
+\end{Prop}
+%It is not hard to see that for any prescribed $\epsilon>0$, one can
+%properly choose $N$, $L$ and $R$, such that
+%\begin{eqnarray*}
+%|\tilde{f_N}(x)-f(x)|&\le& \epsilon, \quad x\in [L,R], \\
+%|f(x)|&\le& \epsilon, \quad x\in [L,R]^c.
+%\end{eqnarray*}
+From the proposition, one can see that approximation error are
+dominated by the boundary condition $f_X(L)+f_X(R)$. If we use both
+$sin$ and $cos$ in the expansion of $f_X(x)$ over $[L,R]$, it is not
+hard to see that error will be dominated by both the function value
+and first derivatives of $f_X$ at boundaries $L$ and $R$.
+%Since $f_X$ is an pdf and is monotonic over $[L,R]^c$, it is not
+%hard to see
+%\[
+%\lim_{x\to \infty}\frac{f_X(x)}{x}=0,
+%\]
+%therefore we can choose small $L,R$ and big $N$ such that
+%$|f_X(x)-\tilde f_N(x)|$ be arbitrarily small.
+To make the approximation accuracy, we should choose $L$ and $R$
+such that $f_X(R)+f_X(L)$ is sufficiently small and $R-L$ is not too
+large so that we can select relative large $N$ such that the three
+terms in (\ref{errorE}) can be controlled simultaneously.
+\section{Estimation of derivatives and antiderivatives}
+In this section, we demonstrate here how to use
+FFT to approximate the derivatives and antiderivatives of $f_X$. We
+rewrite the expression (\ref{pdfa}) of $\tilde{f}_N$ as follows
+\begin{equation}\label{pdfa2}
+\tilde{f}_N(x)=\sum_{j=0}^{N-1}(-1)^{j}A'_j \cos(\pi
+j\frac{x-(2L-R)}l).
+\end{equation}
+Let $F(x,0)=\tilde{f}_N(x)$ and
+\begin{eqnarray*}
+F(x,k):=F(x,k+1)',\quad k=-1,-2,-3,\dots\\
+F(x,k):=\int^{x}_{L} F(u,k-1)du, \quad k=1, 2, 3\dots,
+\end{eqnarray*}
+denote the derivatives and anti derivatives of order $k$ of
+$\tilde{f}_N$ respectively. Note that $F(x,1)$ is the approximation
+of $CDF$ of $X$. The explicit expression (\ref{pdfa2}) of
+$\tilde{f}_N$ make it possible for us to compute effectively
+$F(x,k)$ at the points $\{x_k\}_{k=0}^N$:
+\begin{equation}\label{xk}
+x_k=(2L-R)+k\times \lambda, \quad \lambda=\frac{2(R-L)}N, 0\le k \le N
+\end{equation}
+Note that
+\[
+x_0 = 2L-R, \quad x_{N/2}=L, \quad x_{N}=R.
+\]
+By (\ref{pdfa2}),
+\begin{equation}\label{fxk}
+F(x_k,0)={\sum_{j=0}^{N-1}} A_j' (-1)^{j}\cos(2kj\pi/N)\\
+=\Re {\sum_{j=0}^{N-1}} A_j' (-1)^{j}\omega_N^{kj}
+\end{equation}
+where $\omega_N=e^{2\pi i/N}$. For any complex number $z$,  $\Re(z)$
+and $\Im(z)$ denote the real part and imaginary part of $z$
+respectively. of the complex number $z$. The equation (\ref{fxk}) can be obtained by inverse FFT
+($ifft$):
+\begin{equation}\label{FFT}
+\{F(x_k,0)\}_{0\le k\le N-1}=N \times \Re
+\left\{ifft(\{(-1)^jA'_j\}_{0\le j\le N-1})\right\}.
+\end{equation}
+One can apply (\ref{pdfa2}) to derive $s$-th order derivatives ($s= -1,-2,\cdots$)
+\begin{eqnarray*}
+F(x,-(2h-1))&=&(-1)^h \sum_{j=0}^{N-1}(-1)^{j}(j\pi/l)^{2h-1}A'_j \sin(\pi j\frac{x-(2L-R)}l) \nonumber\\
+F(x,-2h)&=&(-1)^h \sum_{j=0}^{N-1}(-1)^{j}(j\pi/l)^{2h}A'_j \cos(\pi j\frac{x-(2L-R)}l). \label{Fxa}
+\end{eqnarray*}
+and apply inverse FFT to estimate the values at $\{x_k\}_{0\le k\le N-1}$
+\begin{eqnarray}
+\{F(x_k,-(2h-1))\}&=&(-1)^h   N \times \Im (ifft\{(-1)^j (j\pi/l)^{2h-1} A'_j\})  \label{FFTD1}\\
+\{F(x_k,-(2h))\}&=&(-1)^h  N \times \Re (ifft\{(-1)^j (j\pi/l)^{2h} A'_j\})   \label{FFTD2}
+\end{eqnarray}
+For anti derivatives $F(x,s)$ ($s=1,2,\dots$), one can use
+induction to show for $h\ge 1$
+\begin{eqnarray}
+F(x,2h-1)&=&(-1)^{h-1} \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h-1}}{(j\pi)^{2h-1}}\sin(j\pi\frac{x-(2L-R)}{l})\nonumber\\
+&+&\sum_{m=1}^{h-1}\frac{(-1)^{h-m-1}}{(2m-1)!}(x-L)^{2m-1}\sum_{j=0}^{N-1}\frac{\hat{A}_jl^{2(h-m+1)}}{(\pi
+j)^{2(h-m)}}\nonumber\\
+&+&\frac{A'_0(x-L)^{2h-1}}{(2h-1)!} \label{FFTDA1}
+\end{eqnarray}
+and
+\begin{eqnarray}
+F(x,2h)&=&(-1)^h \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}}\cos(j\pi\frac{x-(2L-R)}{l}) \nonumber\\
+&+&\sum_{m=1}^{h}\frac{(-1)^{h-m}}{(2m-2)!}(x-L)^{2m-2}\sum_{j=0}^{N-1}\frac{\hat{A}_jl^{2(h-m+1)}}{(\pi
+j)^{2(h-m+1)}}\nonumber\\
+&+&\frac{A'_0(x-L)^{2h}}{(2h)!} \label{FFTDA2} 
+\end{eqnarray}
+where
+\[
+\hat{A}_0 = 0,\quad \hat{A}_j = A'_j=A_j, \quad j\ge 1
+\]
+For $h \ge 1$, 
+\begin{eqnarray*}
+\{Z(h,k)\}_{0\le k \le N-1} &=& \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h-1}}{(j\pi)^{2h-1}}   \sin(j\pi\frac{x_k-(2L-R)}{l})\\
+&=&N\times \Im (ifft\{ (-1)^j \frac{\hat{A}_j
+l^{2h-1}}{(j\pi)^{2h-1}} \})
+\end{eqnarray*}
+and
+\begin{eqnarray*}
+\{Y(h,k)\}_{0\le k \le N-1} &=& \sum_{j=0}^{N-1}(-1)^j\frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}}   \cos(j\pi\frac{x_k-(2L-R)}{l})\\
+&=&N\times \Re (ifft\{ (-1)^j \frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}} \})
+\end{eqnarray*}
+Notice that
+\[
+Y(h,\frac{N}2)=\sum_{j=0}^{N-1}\frac{\hat{A}_j
+l^{2h}}{(j\pi)^{2h}} 
+\]
+One can rewrite (\ref{FFTDA1}) as
+\begin{eqnarray}
+% \nonumber % Remove numbering (before each equation)
+  \{F(x_k,2h-1)\}_k &=& (-1)^{h-1} \{Z(j,k)\}_k + \{\frac{A'_0(x_k-L)^{2h-1}}{(2h-1)!}\}_k \label{FFTDA11} \\
+&+& \{\sum_{m=1}^{h-1}\frac{(-1)^{h-m-1}Y(\frac{N}2,h-m+1)}{(2m-1)!} (x_k-L)^{2m-1}\}_k\nonumber
+\end{eqnarray}
+and rewrite (\ref{FFTDA2}) as
+\begin{eqnarray}
+% \nonumber % Remove numbering (before each equation)
+  \{F(x_k,2h)\}_k &=& (-1)^{h} \{Y(j,k)\}_k + \{\frac{A'_0(x_k-L)^{2h}}{(2h)!}\}_k \label{FFTDA22} \\
+&+& \{\sum_{m=1}^{h}\frac{(-1)^{h-m}Y(\frac{N}2,h-m+1)}{(2m-2)!} (x_k-L)^{2m-2}\}_k\nonumber
+\end{eqnarray}
+Since we assume that $f_X=0$ outside $[L,R]$, one should only take the second parts of $F$:
+\[
+F(i,h)=F(N/2:(N-1),h), \quad h=0,1,\dots \frac{N}2-1
+\]
+\section{Estimate certain relevant integrations}
+FFT method can also be used to compute the following integration,
+which is required for our purpose.
+\begin{equation}
+E(x,t)=\int^x_L e^{tu}\tilde{f}_N(u)du,\quad t\ge 0,\quad x<R
+\end{equation}
+In fact,
+\begin{eqnarray}
+E(x,t)&=&e^{tx}\sum_{j=0}^{N-1}\frac{\frac{1}{t}\cos(j\pi(x-L)/l) +
+\frac{j\pi}{lt^2}\sin(j\pi(x-L)/l)
+}{1+(\frac{j\pi}{tl})^2}A_j'\nonumber\\
+&-&\sum_{j=0}^{N-1}\frac{e^{tL}/t}{1+(\frac{j\pi}{tl})^2}A_j'\nonumber\\
+&=&e^{tx}\sum_{j=0}^{N-1}\frac{\frac{1}{t}(-1)^j\cos(j\pi(x-(2L-R))/l)}{1+(\frac{j\pi}{tl})^2}A_j'\nonumber\\
+& +&e^{tx}\sum_{j=0}^{N-1}
+\frac{\frac{j\pi}{lt^2}(-1)^j\sin(j\pi(x-(2L-R))/l)
+}{1+(\frac{j\pi}{tl})^2}A_j'\\
+&-&\sum_{j=0}^{N-1}\frac{e^{tL}/t}{1+(\frac{j\pi}{tl})^2}A_j' \label{Ext}
+\end{eqnarray}
+We can use FFT inverse transformation to obtain
+$\{E(x_k,t)\}_{k=0}^{N-1}$.
+Finally, using integration by parts, we can calculate the following integration for any nonnegative integer $j$
+\[
+P(a,b,c,j)=\int^{b}_a(x-c)^j \tilde{f}_X(x)dx, \quad
+[a,b]\subseteq [L,R]
+\]
+In fact,
+\begin{equation}\label{pyd}
+P(a,b,c,j)=\sum_{k=0}^{j}\frac{(-1)^{k} j! }{(j-k)!}
+\{F(b,k)(b-y)^{j-k}-F(a,k)(a-y)^{j-k}\}
+\end{equation}
+%\section{}
+
+
+
+%\bibliographystyle{amsplain}
+%\begin{thebibliography}{10}
+%\bibitem{cama}
+%P. Carr  and D. Madan,  \textit{Option valuation using the fast
+%Fourier transform} J. Comput. Finance (2), pp61--73, 1998
+
+%\bibitem{como}
+%P. Costantini and R. Morandi, \textit{Monotone and convex cubic
+%spline interpolation}, Calcolo, Vol 21, pp 281--294, 1984
+
+%\bibitem{losc}
+%F.A. Longstaff and E.S. Schwartz, \textit{Valuing American options
+%by simulation: a simple least-squares approach,} Review of Financial
+%Studies (14), pp 113--147. 2001.
+
+%\bibitem{adam}
+%A. Kolkiewicz, \textit{Pricing American options on exponential Levy
+%processes,} Dec, 2007.
+%\end{thebibliography}
+
+
+\end{article}
+
+\end{document}

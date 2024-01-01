@@ -1,0 +1,382 @@
+\documentclass[numreferences]{kluwer}    % Specifies the document style.
+\usepackage{graphicx}
+\usepackage{setspace}
+\newdisplay{guess}{Conjecture}
+\newtheorem{Thm}{Theorem}[section]
+\newtheorem{Prop}[Thm]{Proposition}
+\newtheorem{Lem}[Thm]{Lemma}
+\newtheorem{Cor}[Thm]{Corollary}
+\newtheorem{Alg}[Thm]{Algorithm}
+\newtheorem{Que}[Thm]{Question}
+\newtheorem{Conj}[Thm]{Conjecture}
+\newtheorem{Rem}{Remark}
+\newtheorem{Exa}{Example}
+\newtheorem{Con}{Condition}
+\newtheorem{Def}[Thm]{Definition}
+
+
+\begin{document}
+\begin{article}
+\begin{opening}
+\date{April 15,2009}
+\title{Pricing American options on exponential Levy processes}
+
+\author{Adam \surname{Kolkiewicz}\email{wakolkie@math.uwaterloo.ca}}
+\institute{Department of Statistics and Actuarial Science,
+University of Waterloo\\
+Waterloo, Ontario, N2L 3G1, Canada}
+\author{Xiao Rong \surname{Zou}\email{xrzou@math.uwaterloo.ca}}
+\institute{Department of Statistics and Actuarial Science,
+University of Waterloo\\
+Waterloo, Ontario, N2L 3G1, Canada}
+
+\date{August, 10, 2010}
+\runningauthor{A. Kolkiewicz \& X. Zou} \runningtitle{Pricing
+American options on exponential Levy processes}
+\begin{abstract}
+to be added
+\end{abstract}
+\end{opening}
+\section{Introduction and Motivation}\label{intro}
+To be added.
+\section{the formulation of the algorithm and implementation}
+We are assuming that the dynamics of the prices of the underlying
+risky security $\{S_t\}_{0\le t\le T}$ follows a process of the form
+\[
+S_t=e^{X_t}
+\]
+where $X_t$ follows a Levy process with $X_0=\ln S_0$.
+
+
+Let us denote the characteristic function of $X_t$ by $\phi_t(v)=
+E[e^{iv\cdot X_t}], x\in R$.
+
+We shall focus on the Bermuda put option with $M$ periods. The the
+value for call option can be derived by the parity equation. The
+algorithm can be used for the other popular options where exercise
+payoff has a simple expression in term of underlying asset.
+
+The exercise value at any time $t$ before maturity is
+\[
+G(S_t)=\left\{\begin{array}{cc}
+         (\alpha K-\beta S_t)^+ & S_t\le K \\
+         0 & S_t> K
+       \end{array}\right.
+\]
+
+where $K$ is the strike price and $\alpha,\beta$ are non negative
+parameters. Let $\Delta=T/M$, $k=\ln K$. Let
+\[
+\phi(v)=E[e^{ivX_{\Delta}}].
+\]
+be the characteristic function. We are going to write $S_{j\Delta}$
+and $X_{j\Delta}$ as $S_j$ and $X_j$ for convenience. So
+\[
+S_{j+1}=e^{X_{j+1}}=e^{X_j}e^{X_{j+1}-X_j} \sim S_je^{Z}
+\]
+where $Z=X_{j+1}-X_j$ has the density $q(z)$ (without depending on
+$j$). We shall scale the $X_j$ by
+\[
+X_j=\sigma Y_j+\mu
+\]
+where
+\[
+\sigma = var(X_j),\quad \mu=E[X_j]
+\]
+and
+\[
+Z=X_{j+1}-X_j=\sigma(Y_{j+1}-Y_j)=\sigma W
+\]
+where the distribution of $W=Y_{j+1}-Y_j$ is independent on $j$.
+
+Define
+\[
+C^{s}_j(y)=C_j(e^{\sigma y+\mu}),\quad V^{s}_{j}(y)=V_j(e^{\sigma
+y+\mu}), \quad G^s(y)=G(e^{\sigma y+\mu})
+\]
+
+Let $f_W(w)$ be the density function of $W$ and $f_Z(z)$ be the
+density of $Z$, we have
+\[
+f_W(w)=\sigma f_Z(\sigma w)
+\]
+so
+\begin{eqnarray*}
+e^{r\delta} C^s_j(y)&=&e^{r\delta} C_j(e^{\sigma
+y+\mu})=E[V_{j+1}(e^{\sigma y+\mu}e^{\sigma W})]\\
+&=&\int^{\infty}_{-\infty}V_{j+1}(e^{\sigma y+\mu +\sigma
+w})f_W(w)dw\\
+&=&\int^{\infty}_{-\infty}V^s_{j+1}(y+w)f_W(w)dw
+\end{eqnarray*}
+Assume that
+\[
+f_W(w)|_{[L,R]}\approx F_0/2+\sum_{k=1}^{N-1} F_k
+cos(k\pi\frac{x-L}{R-L})
+\]
+where
+\begin{eqnarray*}
+F_k&=&\frac{2}{R-L}Re(\int^R_Lf_W(w)e^{i k \pi
+(w-L)/(R-L)}dw)\\
+&\approx& \frac{2}{R-L}Re( \phi_W(\frac{k\pi}{R-L}) e^{ \pi
+kL/(R-L)})
+\end{eqnarray*}
+where
+\[
+\phi_W(t)=\int^{\infty}_{-\infty}e^{itw}f_W(w)dw
+\]
+Let
+\[
+b_0=-\infty<b_1<\dots b_{k}<cdots
+\]
+be a partition of $(-\infty,\infty)$ and the $V_{j+1}$ is equal to
+the payoff at
+\[
+V^s_{j+1}(y)=G^s(y), \quad -\infty<y\le b_1
+\]
+and  $V_{j+1}$ can be approximated by $d$-degree polynomial on each
+interval $[b_k,b_{k+1})$
+\[
+V^s_{j+1}(y)=\sum_{h=0}^d c_{k,h}(y-b_k)^{h}, \quad  b_{k}\le y <
+b_{k+1},
+\]
+so
+\begin{eqnarray*}
+e^{r\delta}c^s_j(y)&=&\int^{b_1-y}_{-\infty}G^s(w+y)f_W(w)dw\\
+&+&\sum_{k=1}^{\infty}\sum_{h=0}^D c_{k,h}
+\int^{b_{k+1}-y}_{b_k-y}(w+y-b_k)^{h}f_W(w)dw\\
+&:=&I+II.
+\end{eqnarray*}
+To estimate $I$,let
+\[
+y_1=\min(L,b_1-y),\quad y_2=\min(\max(L,b-y_1),R), y_3=\max(R,b_1-y)
+\]
+we discuss $I$ in three cases. We assume that $G^s(y)$ is an
+decreasing function,i.e. a put-style option.
+\begin{enumerate}
+\item $b_1-y\le L$. $y_1=b_1-y$ and $y_2=L$. It is clear that we have
+\begin{equation}\label{gsb}
+0\le I-\int^{y_2}_L G^s(y+w)f_W(w)dw  \le G^s(-\infty)F_W(L)
+\end{equation}
+\item $L\le b_1-y\le R$, $y_1=L$ and $y_2=b_1-y$,
+\[
+I=\int^{y_2}_L G^s(y+w)f_W(w)dw + \int^{L}_{-\infty}
+G^s(y+w)f_W(w)dw
+\]
+It is clear
+\[
+G^s(b_1)F_W(y_1)\le \int^{L}_{-\infty} G^s(y+w)f_W(w)dw\le
+G^s(-\infty) F_{W}(y_1)
+\]
+so the equation (\ref{gsb}) holds as in the case 1.
+\item $b_1-y> R$, $y_1=L$ and $y_2=R$, and
+\[
+I=(\int^{L}_{-\infty}+\int^{y_2}_L +\int^{b_1-y}_{R})
+G^s(y+w)f_W(w)dw
+\]
+It is straightforward to show
+\[
+G^s(b_1)(1-F_W(R))\le \int^{b_1-y}_{R} G^s(y+w)f_W(w)dw\le
+G^s(-\infty)(1-F_W(R))
+\]
+\end{enumerate}
+
+
+\bibliographystyle{amsplain}
+\begin{thebibliography}{10}
+\bibitem{cama}
+P. Carr  and D. Madan,  \textit{Option valuation using the fast
+Fourier transform} J. Comput. Finance (2), pp61--73, 1998
+
+\bibitem{como}
+P. Costantini and R. Morandi, \textit{Monotone and convex cubic
+spline interpolation}, Calcolo, Vol 21, pp 281--294, 1984
+
+\bibitem{losc}
+F.A. Longstaff and E.S. Schwartz, \textit{Valuing American options
+by simulation: a simple least-squares approach,} Review of Financial
+Studies (14), pp 113--147. 2001.
+
+\bibitem{adam}
+A. Kolkiewicz, \textit{Pricing American options on exponential Levy
+processes,} Dec, 2007.
+\end{thebibliography}
+
+
+\end{article}
+
+\end{document}
+
+
+%%%%
+some diagrams that might be helpful
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Gauss.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Merton.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Kou.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{NIG.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{VG.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{TS.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\section{boundaries}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Gauss_boundary.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Merton_boundary.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Kou_boundary.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{NIG_boundary.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{VG_boundary.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{TS_boundary.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+
+
+\begin{pf}
+Let $y_i=f(x_i)$ $(0\le i\le n)$. Define
+\[
+\triangle_i=\frac{y_{i+1}-y_i}{h},\quad
+d_i=\frac{y_{i+1}-y_{i-1}}{2h},\quad 1\le i\le n-1
+\]
+We define
+\[
+s(x)=\frac{y_{i-1}-2y_i+y_{i+1}}{2h^2}
+(x-x_i)^2+d_i(x-x_i)+y_i,\quad x_{i-1} \le x\le x_i, 1\le i\le n-1
+\]
+and $s(x)$ over $[t_{n-1},t_n]$ is defined same as over
+$[t_{n-2},t_{n-1}]$, i.e.
+\[
+s(x)=\frac{y_{n-2}-2y_{n-1}+y_n}{2h^2}(x-x_{n-1})^2+d_{n-1}(x-x_{n-1})+y_{n-1},\quad
+x_{n-1}\le x \le x_n
+\]
+It is easy to check
+\[
+s(x_{i_1})=y_{i-1},\quad s(x_i)=y_i
+\]
+and
+\begin{eqnarray*}
+s''(x)&=&\frac{y_{i-1}-2y_i+y_{i+1}}{2h^2}\ge 0, x\in (x_{i-1},x_i),
+1\le i\le n-1\\
+s''(x)&=&\frac{y_{n-2}-2y_{n-1}+y_n}{2h^2} \ge 0, x\in (x_{n-1},x_n)
+\end{eqnarray*}
+since $f$ is convex. It is easy to see that,
+\begin{eqnarray*}
+s'(x_{i-1}+)&=& -\frac{3y_{i-1}-4y_{i}+y_{i+1}}{2h}, \\
+s'(x_i-)&=&\frac{y_{i+1}-y_{i-1}}{2h}\\
+s'(x_i+)&=& -\frac{3y_{i}-4y_{i+1}+y_{i+2}}{2h},
+\end{eqnarray*}
+so
+\begin{eqnarray*}
+s'(x_i+)-s'(x_i-)&=&\frac{y_{i-1}-3y_i+3y_{i+1}-y_{i+2}}{2h}\\
+&=&\frac{(y_{i-1}-3y_i+2y_{i+1})+(y_{i+1}-y_{i+2})}{2h}>0
+\end{eqnarray*}
+since
+%\begin{eqnarray*}
+%s(x_i)=y_i,\quad s'(x_i^_)=d_i
+%\end{eqnarray*}
+\end{pf}
+
+
+\section{Appendix: sydecode code of the implementation}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Gauss.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Merton.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{Kou.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{NIG.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+
+\begin{figure} [ht]
+\centering
+\includegraphics{VG.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
+
+\begin{figure} [ht]
+\centering
+\includegraphics{TS.eps}
+\caption{My figure} \label{the-label-for-cross-referencing}
+\end{figure}
