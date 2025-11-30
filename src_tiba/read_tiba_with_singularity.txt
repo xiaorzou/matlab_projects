@@ -1,0 +1,46 @@
+this is run instruction to generate the results for the following paper
+
+"Trigonometric Interpolation Based Based Approach for Second Order ODE with
+Mixed Boundary Conditions"
+
+
+To generate results in Table II, III, IV, Figure 1 in section 6.1,  
+
+1) run "main_tiba_with_w()" with following setting 
+
+    flag_save_excel = true;
+    flag_save_fig = false;
+    smooth_PQR = true; %default
+    cond_types = {'Neumann','Dirichlet', 'mix_1', 'mix_2'}; %default
+    qs = [6,7,8]; %in paper 
+    degs = [2]; % in paper 
+    deg_ws = [0, 1, 2]; % in paper 
+    paras =[0.5, 1, 2, 4]; %in paper
+    sts = [e];  %%in the paper, 
+output file:  main_tiba_with_w_smooth_PQR_1.xlsx
+
+2) set 
+	smooth_PQR = false;  
+and run "main_tiba_with_w()" again. 
+output file:  main_tiba_with_w_smooth_PQR_0.xlsx
+
+
+note:  cond_type 1,2,3,4 are associated to 'Neumann','Dirichlet', 'mix_1', 'mix_2' respectively
+
+
+3) to get the results with "trin" in Table II
+	
+output will be written to the file 
+
+To generate results in Table V and Figure 2,  
+run  main_tiba_singular() with following setting:
+
+    flag_save_excel = true;
+    flag_save_fig = true;
+    smooth_PQR = true;
+    cond_types = {'Neumann','Dirichlet'}; % in the paper
+    qs = [6,7,8]; %default 
+    paras = [1,2,3]; %default 
+    st = e;
+
+note:  cond_type 1,2 are associated to 'Neumann','Dirichlet' respectively
